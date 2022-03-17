@@ -6,11 +6,7 @@ const bodyParser = require('body-parser');
 
 const app = express();
 app.set('view engine', 'ejs');
-// app.engine('hbs', engine({layoutsDir: 'views/layouts', defaultLayout: 'main-layout', extname: 'hbs'}));
-// app.set('view engine', 'hbs'); // Set the engine to express-handlebars which is used to render any dynamic templates
-// app.set('view engine', 'pug'); // Set the engine to pug which is used to render any dynamic templates
 app.set('views', 'views'); 
-// Set the directory where to find the views folder/files. Default is 'views' so no need to add this line if you don't have your files in a different folder.
 
 const adminData = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
