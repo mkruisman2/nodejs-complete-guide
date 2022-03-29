@@ -2,13 +2,13 @@ const path = require("path");
 
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 
 const errorController = require("./controllers/error");
-const mongoConnect = require("./util/database").mongoConnect;
 // const sequelize = require("./util/database");
 // const Product = require("./models/product");
 const User = require("./models/user");
-const { userId } = require("./util/data");
+const { userId, mongodbUrl } = require("./util/data");
 // const Cart = require("./models/cart");
 // const CartItem = require("./models/cart-item");
 // const Order = require("./models/order");
@@ -28,7 +28,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use((req, res, next) => {
   User.findById(userId)
     .then((user) => {
-      req.user = new User(user.name, user.email, user.cart, user._id);
+      req.user = user; // user is full Mongoose model
       next();
     })
     .catch((err) => {
@@ -41,9 +41,28 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
-mongoConnect(() => {
-  app.listen(3000);
-});
+mongoose
+  .connect(`${mongodbUrl}/shop?retryWrites=true&w=majority`)
+  .then((result) => {
+    User.findOne().then(user => {
+      if (!user) {
+        const user = new User({
+          name: "Marit",
+          email: "test@test.com",
+          items: [],
+        });
+        user.save();
+      }
+    })
+    app.listen(3000);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+
+// mongoConnect(() => {
+//   app.listen(3000);
+// });
 
 // Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" }); // Products created by User on admin page. Product is deleted when user is deleted
 // User.hasMany(Product); // A User can have multiple products.
